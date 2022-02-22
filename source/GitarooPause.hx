@@ -46,6 +46,8 @@ class GitarooPause extends MusicBeatState
 		add(cancelButton);
 
 		changeThing();
+		
+		addVirtualPad(LEFT_RIGHT, A_B);
 
 		super.create();
 	}
