@@ -32,7 +32,7 @@ class MusicBeatState extends FlxUIState
 		return PlayerSettings.player1.controls;
 		#if android
 	var _virtualpad:FlxVirtualPad;
-	var android:AndroidControls;
+	var androidc:AndroidControls;
 	var trackedinputsUI:Array<FlxActionInput> = [];
 	var trackedinputsNOTES:Array<FlxActionInput> = [];
 	#end
