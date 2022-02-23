@@ -55,10 +55,18 @@ import DialogueBoxPsych;
 import sys.FileSystem;
 #end
 
+#if android
+import android.Mobilecontrols;
+#end
+
 using StringTools;
 
 class PlayState extends MusicBeatState
 {
+    #if android
+    var androidc:Mobilecontrols;
+    #end
+    
 	public static var STRUM_X = 42;
 	public static var STRUM_X_MIDDLESCROLL = -278;
 
@@ -1482,6 +1490,30 @@ class PlayState extends MusicBeatState
 		timeBarBG.cameras = [camHUD];
 		timeTxt.cameras = [camHUD];
 		doof.cameras = [camHUD];
+		
+		#if android
+			androidc = new Mobilecontrols();
+
+			switch (androidc.mode)
+			{
+				case VIRTUALPAD_RIGHT | VIRTUALPAD_LEFT | VIRTUALPAD_CUSTOM:
+					controls.setVirtualPadNOTES(androidc._virtualPad, FULL, NONE);
+				case HITBOX:
+					controls.setHitBoxNOTES(androidc._hitbox);
+				default:
+			}
+			trackedinputsNOTES = controls.trackedinputsNOTES;
+			controls.trackedinputsNOTES = [];
+
+  var camcontrol = new FlxCamera();
+		    FlxG.cameras.add(camcontrol);
+		    camcontrol.bgColor.alpha = 0;
+			          androidc.cameras = [camcontrol];
+
+			          androidc.visible = false;
+
+			          add(androidc);
+		#end
 
 		if(curStage == 'exeport' || curStage == 'hatebg' || curStage == 'racing') {
 			camHUD.alpha = 0;
@@ -1724,12 +1756,29 @@ class PlayState extends MusicBeatState
 		} else {
 			FlxG.log.warn('Couldnt find video file: ' + fileName);
 		}
-		#end
+		#else//the android thing
+		inCutscene = true;
+		var bg = new FlxSprite(-FlxG.width, -FlxG.height).makeGraphic(FlxG.width * 3, FlxG.height * 3, FlxColor.BLACK);
+		bg.scrollFactor.set();
+		bg.cameras = [camHUD];
+		add(bg);
+
+		var video = new WebViewPlayer(name);                                                     
+ video.finishCallback = function() {                                                               
+			if(endingSong) {
+				endSong();
+				if (SONG.song.toLowerCase() == 'aurora' || SONG.song.toLowerCase() == 'evacuate')
+					LoadingState.loadAndSwitchState(new StoryMenuState());
+			} else {
+				startCountdown();
+			}  
+  }
 		if(endingSong) {
 			endSong();
 		} else {
 			startCountdown();
 		}
+		#end
 	}
 
 	var dialogueCount:Int = 0;
@@ -1865,6 +1914,9 @@ class PlayState extends MusicBeatState
 		inCutscene = false;
 		var ret:Dynamic = callOnLuas('onStartCountdown', []);
 		if(ret != FunkinLua.Function_Stop) {
+		          #if android
+             androidc.visible = true;
+             #end
 			generateStaticArrows(0);
 			generateStaticArrows(1);
 			for (i in 0...playerStrums.length) {
@@ -2618,7 +2670,7 @@ class PlayState extends MusicBeatState
 		}
 		botplayTxt.visible = cpuControlled;
 
-		if (FlxG.keys.justPressed.ENTER && startedCountdown && canPause)
+		if (FlxG.keys.justPressed.ENTER#if android || FlxG.android.justReleased.BACK #end && startedCountdown && canPause)
 		{
 			var ret:Dynamic = callOnLuas('onPause', []);
 			if(ret != FunkinLua.Function_Stop) {
@@ -3863,6 +3915,9 @@ class PlayState extends MusicBeatState
 		timeBarBG.visible = false;
 		timeBar.visible = false;
 		timeTxt.visible = false;
+		#if android
+androidc.visible = false;
+        #end
 		canPause = false;
 		endingSong = true;
 		camZooming = false;
