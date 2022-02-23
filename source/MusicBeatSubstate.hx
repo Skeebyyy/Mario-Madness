@@ -7,7 +7,6 @@ import flixel.FlxBasic;
 import flixel.FlxSprite;
 #if android
 import flixel.input.actions.FlxActionInput;
-import android.AndroidControls.AndroidControlsSetup;
 import android.FlxVirtualPad;
 #end
 
@@ -27,24 +26,22 @@ class MusicBeatSubstate extends FlxSubState
 
 	inline function get_controls():Controls
 		return PlayerSettings.player1.controls;
-		#if android
+	#if android
 	var _virtualpad:FlxVirtualPad;
 	var trackedinputsUI:Array<FlxActionInput> = [];
 	var trackedinputsNOTES:Array<FlxActionInput> = [];
 	#end
 	
-	#if android
 	public function addVirtualPad(?DPad:FlxDPadMode, ?Action:FlxActionMode) {
+		#if android
 		_virtualpad = new FlxVirtualPad(DPad, Action);
 		_virtualpad.alpha = 0.75;
 		add(_virtualpad);
 		controls.setVirtualPadUI(_virtualpad, DPad, Action);
 		trackedinputsUI = controls.trackedinputsUI;
 		controls.trackedinputsUI = [];
+		#end
 	}
-	#else
-	public function addVirtualPad(?DPad, ?Action)
-	#end
 
         public function addPadCamera() {
 		#if android
@@ -62,8 +59,8 @@ class MusicBeatSubstate extends FlxSubState
 		#end	
 		
 		super.destroy();
-	}
-
+	}	
+	
 	override function update(elapsed:Float)
 	{
 		//everyStep();
